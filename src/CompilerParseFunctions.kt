@@ -30,6 +30,7 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     stos1.matchEntire(orig)?.run {
         val (label, type, ptr, ident) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -54,6 +55,11 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     }
     stos2.matchEntire(orig)?.run {
         val (label, type, ptr, ident, reg, num) = destructured
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
@@ -80,6 +86,12 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     stos3.matchEntire(orig)?.run {
         val (label, type, ptr, seg, col, reg, num) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        if(seg!="" && col=="") return ErrorSentence(orig, currentOffset, "`:` expected")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -128,6 +140,8 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     or1.matchEntire(orig)?.run {
         val (label, reg, type, ptr, ident) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -153,6 +167,11 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     or2.matchEntire(orig)?.run {
         val (label, reg, type, ptr, ident, ind, num) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -180,6 +199,12 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     or3.matchEntire(orig)?.run {
         val (label, reg, type, ptr, seg, col, ind, num) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        if(seg!="" && col=="") return ErrorSentence(orig, currentOffset, "`:` expected")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -210,6 +235,8 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     and1.matchEntire(orig)?.run {
         val (label, type, ptr, ident, reg) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -235,6 +262,11 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     and2.matchEntire(orig)?.run {
         val (label, type, ptr, ident, ind, num, reg) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -262,6 +294,12 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     and3.matchEntire(orig)?.run {
         val (label, type, ptr, seg, col, ind, num, reg) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        if(seg!="" && col=="") return ErrorSentence(orig, currentOffset, "`:` expected")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -309,6 +347,8 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     adc1.matchEntire(orig)?.run {
         val (label, type, ptr, ident, imm) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -341,6 +381,11 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     adc2.matchEntire(orig)?.run {
         val (label, type, ptr, ident, ind, num, imm) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
@@ -375,6 +420,12 @@ fun Compiler.parseInstruction(orig: String): Sentence {
     adc3.matchEntire(orig)?.run {
         val (label, type, ptr, seg, col, ind, num, imm) = destructured
         findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
+        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
+        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
+        if(seg!="" && col=="") return ErrorSentence(orig, currentOffset, "`:` expected")
+        NumberConstant(num)?.run{
+            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
+        }
         val labelInstance =
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
