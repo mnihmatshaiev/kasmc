@@ -44,7 +44,7 @@ fun Compiler.printFirstPass() {
     }
 }
 fun Compiler.printSecondPass() {
-    println("####| offset | ${"bytes".padEnd(24)} | source")
+    println("####| offset | ${"bytes".padEnd(32)} | source")
     var count = 1
     sentencesList.forEach {
         println(count.toString().padStart(4, ' ') + "|" + it.secondPassPrint())

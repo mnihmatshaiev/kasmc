@@ -103,7 +103,13 @@ class Segment(val name: String) {
 fun parseLabel(string: String, offset: BigInteger): Label {
     Regex("($identifier)\\s*:", RegexOption.IGNORE_CASE).matchEntire(string)?.run {
         val (name) = destructured
-        return Label(name, offset)
+        val labelInstance = Label(name, offset)
+        Compiler.forwardLabels[name.toLowerCase()]?.forEach {
+            println(it)
+            it.secondPassString = it.secondPassString + " " + (java.lang.Long.toHexString((labelInstance.offset.toLong() - it.offset.toLong() - 2).let{num -> if(num<0) 0xFF-num else num}).padStart(2, '0') + " 90 90 90 90").padEnd(29)
+            println(it.secondPassString)
+        }
+        return labelInstance
     }
     return NoLabel()
 }

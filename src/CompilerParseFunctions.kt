@@ -473,13 +473,19 @@ fun Compiler.parseInstruction(orig: String): Sentence {
             else -> "2"
         }.padStart(4)
         val firstPass = " $hexOffset | $sizeString"
-        val secondPass = " $hexOffset | ${prefixOpcodeString.padEnd(32)}"
-        return InstructionSentence(
-            orig, firstPass, secondPass, when (targetInstance) {
-                is NoLabel -> 6
-                else -> 2
-            }
+        val bytesString = when(targetInstance){
+            is NoLabel -> prefixOpcodeString
+            else -> (prefixOpcodeString + " " + java.lang.Long.toHexString((labelInstance.offset.toLong() - currentOffset.toLong() - 2).let{ if(it<0) 0xFF+it + 1 else it}).padStart(2, '0')).padEnd(32)
+        }
+        val secondPass = " $hexOffset | $bytesString"
+        val instructionInstance = InstructionSentence(
+                orig, firstPass, secondPass, when (targetInstance) {
+            is NoLabel -> 6
+            else -> 2
+        }
         )
+        forwardLabels[target.toLowerCase()]?.add(instructionInstance) ?: forwardLabels.putIfAbsent(target.toLowerCase(), mutableListOf(instructionInstance))
+        return instructionInstance
     }
     segment.matchEntire(orig)?.run {
         val (name) = destructured

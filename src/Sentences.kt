@@ -31,7 +31,7 @@ class IfSentence(orig: String, offset: BigInteger, val variable: Variable?, val 
 class InstructionSentence(
     orig: String,
     val firstPassString: String,
-    val secondPassString: String,
+    var secondPassString: String,
     override val size: Int
 ) : Sentence(orig, NoLabel(), 0.toBigInteger()) {
     override fun firstPassPrint(): String {
