@@ -9,5 +9,6 @@ object Compiler {
     val sentencesList = mutableListOf<Sentence>()
     val linesList = File(sourceFile).readText().split('\n').toMutableList()
     var currentOffset: BigInteger = 0.toBigInteger()
+    val forwardLabels = mutableMapOf<String, MutableList<InstructionSentence>>()
     lateinit var activeSegment: Segment
 }
