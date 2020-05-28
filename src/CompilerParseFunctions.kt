@@ -1,3 +1,8 @@
+// F6 /3 NEG r/m8
+// F7 /3 NEG r/m32
+
+
+
 fun Compiler.parseInstruction(orig: String): Sentence {
     val hexOffset = java.lang.Long.toHexString(currentOffset.toLong()).padStart(6, '0')
     pushad.matchEntire(orig)?.run {
@@ -21,67 +26,17 @@ fun Compiler.parseInstruction(orig: String): Sentence {
                 ?: parseLabel(label, currentOffset)
         if (labelInstance !is NoLabel) labelsList.add(labelInstance)
         val modrm = MODRM(0b11, 3, Reg32(reg).code)
-        val bytesString = "f7 ${java.lang.Integer.toHexString(modrm.code).padStart(2, '0')}".padEnd(32)
+        val bytesString = "${when(reg.length){2->"f6" else -> "f7"}} ${java.lang.Integer.toHexString(modrm.code).padStart(2, '0')}".padEnd(32)
         val sizeString = "2".padStart(4)
         val firstPass = " $hexOffset | $sizeString"
         val secondPass = " $hexOffset | $bytesString"
         return InstructionSentence(orig, firstPass, secondPass, 2)
     }
     stos1.matchEntire(orig)?.run {
-        val (label, type, ptr, ident) = destructured
-        findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
-        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
-        val labelInstance =
-            findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
-                ?: parseLabel(label, currentOffset)
-        if (labelInstance !is NoLabel) labelsList.add(labelInstance)
-        val variableInstance =
-            findVariable(ident) ?: return ErrorSentence(orig, currentOffset, "$label doesn't exist")
-        val prefixOpcodeString = when (type) {
-            "byte" -> "aa"
-            "word" -> "66| ab"
-            "dword" -> "ab"
-            else -> when (variableInstance.size) {
-                1 -> "aa"
-                2 -> "66| ab"
-                else -> "ab"
-            }
-        }
-        val bytesString = "$prefixOpcodeString".padEnd(32)
-        val sizeString = "1".padStart(4)
-        val firstPass = " $hexOffset | $sizeString"
-        val secondPass = " $hexOffset | $bytesString"
-        return InstructionSentence(orig, firstPass, secondPass, 1)
+        return ErrorSentence(orig, currentOffset, "Can't override es segment")
     }
     stos2.matchEntire(orig)?.run {
-        val (label, type, ptr, ident, reg, num) = destructured
-        if(type!="" && ptr=="") return ErrorSentence(orig, currentOffset, "`ptr` expected")
-        if(type=="" && ptr!="") return ErrorSentence(orig, currentOffset,  "expected `byte|word|dword` before `ptr`")
-        NumberConstant(num)?.run{
-            if(int.toInt() != 1 && int.toInt()!=2 && int.toInt()!=4 &&int.toInt()!=8) return ErrorSentence(orig, currentOffset, "wrong scale value")
-        }
-        findVariable(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
-        val labelInstance =
-            findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
-                ?: parseLabel(label, currentOffset)
-        if (labelInstance !is NoLabel) labelsList.add(labelInstance)
-        val variableInstance =
-            findVariable(ident) ?: return ErrorSentence(orig, currentOffset, "$label doesn't exist")
-        val prefixOpcodeString = when (type) {
-            "byte" -> "aa"
-            "word" -> "66| ab"
-            "dword" -> "ab"
-            else -> when (variableInstance.size) {
-                1 -> "aa"
-                2 -> "66| ab"
-                else -> "ab"
-            }
-        }
-        val bytesString = "$prefixOpcodeString".padEnd(32)
-        val sizeString = "1".padStart(4)
-        val firstPass = " $hexOffset | $sizeString"
-        val secondPass = " $hexOffset | $bytesString"
-        return InstructionSentence(orig, firstPass, secondPass, 1)
+        return ErrorSentence(orig, currentOffset, "Can't override es segment")
     }
     stos3.matchEntire(orig)?.run {
         val (label, type, ptr, seg, col, reg, num) = destructured
@@ -97,8 +52,8 @@ fun Compiler.parseInstruction(orig: String): Sentence {
                 ?: parseLabel(label, currentOffset)
         if (labelInstance !is NoLabel) labelsList.add(labelInstance)
         val segmentString = when (seg) {
-            "" -> ""
-            else -> java.lang.Integer.toHexString(RegSeg(seg).code).padStart(2, '0')
+            "es" -> ""
+            else -> return ErrorSentence(orig, currentOffset, "Can't override es segment")
         }
         val prefixOpcodeString = when (type) {
             "byte" -> "aa"
@@ -244,9 +199,8 @@ fun Compiler.parseInstruction(orig: String): Sentence {
         val variableInstance =
             findVariable(ident) ?: return ErrorSentence(orig, currentOffset, "$label doesn't exist")
         val modrm = MODRM(0b00, Reg32(reg).code, 0b101)
-        val segmentString = java.lang.Integer.toHexString(RegSeg("es").code).padStart(2, '0')
         val prefixOpcodeString = "21"
-        val bytesString = "$segmentString: $prefixOpcodeString ${java.lang.Integer.toHexString(modrm.code)
+        val bytesString = "$prefixOpcodeString ${java.lang.Integer.toHexString(modrm.code)
             .padStart(2, '0')} ${java.lang.Long.toHexString(variableInstance.offset.toLong())
             .padStart(8, '0')}".padEnd(32)
         val sizeAdd = when (type) {
@@ -254,10 +208,10 @@ fun Compiler.parseInstruction(orig: String): Sentence {
             "dword" -> 4
             else -> variableInstance.typeInt
         }
-        val sizeString = (3 + sizeAdd).toString().padStart(4)
+        val sizeString = (2 + sizeAdd).toString().padStart(4)
         val firstPass = " $hexOffset | $sizeString"
         val secondPass = " $hexOffset | $bytesString"
-        return InstructionSentence(orig, firstPass, secondPass, 3 + sizeAdd)
+        return InstructionSentence(orig, firstPass, secondPass, 2 + sizeAdd)
     }
     and2.matchEntire(orig)?.run {
         val (label, type, ptr, ident, ind, num, reg) = destructured
@@ -275,9 +229,8 @@ fun Compiler.parseInstruction(orig: String): Sentence {
             findVariable(ident) ?: return ErrorSentence(orig, currentOffset, "$label doesn't exist")
         val modrm = MODRM(0b00, Reg32(reg).code, 0b100)
         val sib = SIB(NumberConstant(num).typeInt, Reg32(ind).code)
-        val segmentString = java.lang.Integer.toHexString(RegSeg("es").code).padStart(2, '0')
         val prefixOpcodeString = "21"
-        val bytesString = "$segmentString: $prefixOpcodeString ${java.lang.Integer.toHexString(modrm.code)
+        val bytesString = "$prefixOpcodeString ${java.lang.Integer.toHexString(modrm.code)
             .padStart(2, '0')} ${java.lang.Integer.toHexString(sib.code)
             .padStart(2, '0')} ${java.lang.Long.toHexString(variableInstance.offset.toLong())
             .padStart(8, '0')}\"".padEnd(32)
@@ -355,7 +308,7 @@ fun Compiler.parseInstruction(orig: String): Sentence {
         if (labelInstance !is NoLabel) labelsList.add(labelInstance)
         val variableInstance =
             findVariable(ident) ?: return ErrorSentence(orig, currentOffset, "$label doesn't exist")
-        val modrm = MODRM(0b00, 2, 0b101)
+        val modrm = MODRM(0b00, 2, 0b100)
         val immVal = when {
             Regex(number, RegexOption.IGNORE_CASE).matches(imm) -> NumberConstant(imm)
             else -> StringConstant(imm)
@@ -392,7 +345,7 @@ fun Compiler.parseInstruction(orig: String): Sentence {
         if (labelInstance !is NoLabel) labelsList.add(labelInstance)
         val variableInstance =
             findVariable(ident) ?: return ErrorSentence(orig, currentOffset, "$label doesn't exist")
-        val modrm = MODRM(0b00, 2, 0b101)
+        val modrm = MODRM(0b00, 2, 0b100)
         val immVal = when {
             Regex(number, RegexOption.IGNORE_CASE).matches(imm) -> NumberConstant(imm)
             else -> StringConstant(imm)
@@ -430,7 +383,7 @@ fun Compiler.parseInstruction(orig: String): Sentence {
             findLabel(label)?.run { return ErrorSentence(orig, currentOffset, "$label is already exists") }
                 ?: parseLabel(label, currentOffset)
         if (labelInstance !is NoLabel) labelsList.add(labelInstance)
-        val modrm = MODRM(0b00, 2, 0b101)
+        val modrm = MODRM(0b00, 2, 0b100)
         val immVal = when {
             Regex(number, RegexOption.IGNORE_CASE).matches(imm) -> NumberConstant(imm)
             else -> StringConstant(imm)

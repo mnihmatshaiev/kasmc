@@ -130,13 +130,13 @@ class MODRM(val mod: Int, val reg: Int, val rm: Int) {
 
 class Reg32(name: String) {
     val code = when (name) {
-        "eax" -> 0b000
-        "ecx" -> 0b001
-        "edx" -> 0b010
-        "ebx" -> 0b011
-        "esp" -> 0b100
-        "ebp" -> 0b101
-        "esi" -> 0b110
+        "eax", "ax", "al" -> 0b000
+        "ecx", "cx", "cl" -> 0b001
+        "edx", "dx", "dl" -> 0b010
+        "ebx", "bx", "bl" -> 0b011
+        "esp", "sp", "ah" -> 0b100
+        "ebp", "bp", "ch" -> 0b101
+        "esi", "si", "dh" -> 0b110
         else -> 0b111
     }
 }

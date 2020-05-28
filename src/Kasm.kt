@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
 //        println("wrong kasmc usage")
 //        println("kasm compiler has following usage:")
 //        println("kasmc <input_file.asm> [-o <output_file>]")
-//        println("is output_file option absent, listing will be shown in console and written to default `lst.lst` file")
+//        println("if output_file option absent, listing will be written to default `lst.lst` file")
 //    }
     Compiler.parseProgram()
     Compiler.printSecondPass()

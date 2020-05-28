@@ -43,8 +43,8 @@ class InstructionSentence(
     }
 }
 
-class ErrorSentence(orig: String, offset: BigInteger, val message: String) : Sentence(orig, NoLabel(), offset) {
-    override val size = 0
+class ErrorSentence(orig: String, offset: BigInteger, val message: String, valstr : Int = 0) : Sentence(orig, NoLabel(), offset) {
+    override val size = valstr
     override fun firstPassPrint(): String {
         return " ${java.lang.Long.toHexString(offset.toLong()).padStart(6, '0')} | ${size.toString()
             .padStart(4)} | $orig\n $message"

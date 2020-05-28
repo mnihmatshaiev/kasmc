@@ -1,4 +1,4 @@
-val reg32 = "eax|ecx|edx|ebx|esp|ebp|esi|edi"
+val reg32 = "eax|ecx|edx|ebx|esp|ebp|esi|edi|al|cl|dl|bl|ah|ch|dh|bh|ax|cx|dx|bx|sp|bp|si|di"
 val regSeg = "es|cs|ss|ds|fs|gs"
 val identifier = "[a-z][a-z0-9]*"
 val number = "[0-9a-f]+h"
